@@ -5,7 +5,22 @@ from rest_framework import serializers
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ['id', 'username', 'email', 'phone_number']
+        fields = ['id', 'first_name', 'last_name', 'username', 'email', 'phone_number', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True , 'min_length': 8 },
+            'first_name': {'required': True},
+            
+            'last_name': {'required': True},
+            'email': {'required': True},
+            'username': {'required': True, 'validators': []},  # Disable unique validator
+        }
+
+
+    def create(self, validated_data):
+        user=UserModel.objects.create_user(**validated_data)
+        return user
+
+
 
 class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -57,19 +72,19 @@ class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = ['id', 'user', 'product', 'score', 'review', 'created_at']
-
+        
 class ProductRatingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductRating 
-        fields =[ "id", "average_rating", "total_reviews"]
 
+    class Meta:
+        model = ProductRating
+        fields = ["id", "average_rating", "total_reviews"]
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-    rating=RatingSerializer(read_only=True,many=True)
-    review=ProductRatingSerializer(read_only=True)
+    ratings=RatingSerializer(read_only=True,many=True)
+    product_rating=ProductRatingSerializer(read_only=True)
     class Meta:
         model = Product
-        fields = ['id', 'name', 'slug', 'description', 'image', 'price','rating','review']
+        fields = ['id', 'name', 'slug', 'description', 'image', 'price','ratings','product_rating']
 
 
 

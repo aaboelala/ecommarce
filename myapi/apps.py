@@ -7,5 +7,3 @@ class MyapiConfig(AppConfig):
 
     def ready(self):
         import myapi.signals
-
-        
